@@ -2,17 +2,21 @@
 
 1- CRIAMOS A FUNÇÃO QUE DITA A PRIMEIRA JOGADA.
 2- FUNÇÃO JOGO: PARTE QUE DITA AS OPÇÕES DO JOGADOR FEITA
-3- FUNÇÃO COMPRA COM BUGS.
+3- FUNÇÃO COMPRA CONSERTADA.
+4- O JOGO AVISA QUEM GANHOU E FECHA
+5- FALTA SÓ SALVAR E CARREGAR O JOGO
   */
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 
 void compra(int mao[21][2], int mesa[28][2],int contador, int banco){
-    mao[contador][0] = mesa[banco-1][0];
-    mao[contador][1] = mesa[banco-1][1];
-    mao[banco-1][0] = 0;
-    mao[banco-1][1] = 0;
+  if(banco != 0){
+      mao[contador][0] = mesa[banco-1][0];
+      mao[contador][1] = mesa[banco-1][1];
+      mesa[banco-1][0] = 0;
+      mesa[banco-1][1] = 0;
+  }
 }
 
 int Pjogada(int matriz1[21][2],int matriz2[21][2],int mesa[55][2] ,int rodada){
@@ -255,7 +259,7 @@ int remover(int ladoe, int ladod, int matriz[21][2], int contador )
     int i;
     for (i = 0; i < contador; i++)
     {
-        if(ladoe == matriz[i][0] && ladod == matriz[i][1])
+        if((ladoe == matriz[i][0] && ladod == matriz[i][1])||(ladod == matriz[i][0] && ladoe == matriz[i][1]))
         {
             while(i < contador){
             matriz[i][0] = matriz[i + 1][0];
@@ -310,7 +314,13 @@ int peca_valida(int mao[21][2], int tabuleiro[55][2],int numpecas, int e, int d)
         printf("\n");
         return result;
 } 
-
+int GANHOU(int mao[21][2]){
+  int i, j, v;
+  if(mao[0][0] == 0 && mao[0][1] == 0){
+    printf("Jogador desta rodada ganhou");
+  }
+  
+}
 int JOGO(int matriz[55][2],int mao[21][2], int e, int d)
 { 
   int peca_jogada[2];
@@ -325,7 +335,6 @@ int JOGO(int matriz[55][2],int mao[21][2], int e, int d)
   */
   while(tem == 0)
   {
-
     do
     {
       printf("\nselecione o lado da mesa que deseja jogar( 0 para esquerdo, 1 para direito, 2 para sair)\n");
@@ -501,10 +510,15 @@ int main(){
        if(vez1 == rodada){
          vez1 = vez1 + 2;
          while(loopint == 1){
+          if(contador1 == 0){
+            printf("\n\n!!!!!JOGADOR 1 VENCEU!!!!!\n\n");
+            exit(0);
+          }
+          else{
           printf("\nRODADA %d\n", rodada + 1);
 
           printf("\nTurno do jogador 1\n");
-          system("read -p \"PRESSIONE QUALQUER TECLA PARA CONTINUAR\" continue ");
+          system("read -p \"PRESSIONE ENTER PARA CONTINUAR\" continue ");
           printf("\n\nSua mão:\n\n");
            for(i=0; i <contador1;i++){
              printf("[%d/%d]",mao1[i][0],mao1[i][1]);
@@ -516,7 +530,7 @@ int main(){
            }
           printf("\nEscolha seu movimento\n1-Jogar\n2-Comprar uma peça\n3-Passar sua vez\n4-Salvar e sair\n");
           movimento = lerInteiro();
-
+           
           if(movimento == 1){
 
 
@@ -529,6 +543,10 @@ int main(){
              { 
                remover(linha[e-1][0], linha[e-1][1],mao1, contador1);
                contador1 --;
+               if(contador1 == 0){
+                 printf("Jogador 1 venceu");
+                 exit(0);
+               }
                e--;
               rodada ++;
               break;
@@ -568,6 +586,7 @@ int main(){
                 }
             }
           }
+          
           if(movimento == 3){
             if(peca_valida(mao1,linha,contador1,e,d) != 1 && pecas_no_banco == 0)
             {
@@ -586,14 +605,20 @@ int main(){
               break;
             }
           }
+          }  
         }
        }
         if(vez2 == rodada){
           vez2 = vez2 + 2;
           while(loopint == 1){
+            if(contador2 == 0){
+              printf("\n\n!!!!!JOGADOR 2 VENCEU!!!!!\n\n");
+              exit(0);
+            }
+            else{
            printf("\nRODADA %d\n", rodada + 1);
            printf("\nTurno do jogador 2\n");
-            system("read -p \"PRESSIONE QUALQUER TECLA PARA CONTINUAR\" continue ");
+            system("read -p \"PRESSIONE ENTER PARA CONTINUAR\" continue ");
             printf("Sua mão:\n");
             for(i=0; i <contador2;i++){
               printf("[%d/%d]",mao2[i][0],mao2[i][1]);
@@ -605,7 +630,10 @@ int main(){
              }
            printf("\nEscolha seu movimento\n1-Jogar\n2-Comprar uma peça\n3-Passar sua vez\n4-Salvar e sair\n");
            movimento = lerInteiro();
-
+           if(contador2 == 0){
+             printf("Jogador 2 venceu");
+             
+           }
            if(movimento == 1){
 
 
@@ -613,6 +641,10 @@ int main(){
             if(peca_valida(mao2,linha,contador2,e,d) == 1){
              //Função do Xamuel
              n = JOGO(linha, mao2, e, d);
+              if(contador2 == 0){
+                 printf("Jogador 2 venceu!");
+                exit(0);
+              }
              if(n == 0)
              {
                remover(linha[e-1][0], linha[e-1][1],mao2, contador2);
@@ -625,6 +657,10 @@ int main(){
              {
                remover(linha[d + 1][0], linha[d + 1][1],mao2, contador2);
                 contador2 --;
+               if(contador2 == 0){
+                  printf("Jogador 2 venceu!");
+                 exit(0);
+               }
                d++;
               rodada ++;
               break;
@@ -674,6 +710,7 @@ int main(){
              }
            }
          }
+       }   
       }
      }
     }
